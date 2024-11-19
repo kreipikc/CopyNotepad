@@ -18,169 +18,54 @@ using System.Windows.Shapes;
 
 namespace CopyNotepad
 {
-    public enum StatusElement
-    {
-        New,
-        Saved,
-        NotSaved
-    }
-
-    public class Document
-    {
-        public StatusElement Status { get; private set; }
-        public string FilePath { get; private set; } = "";
-        public string FileName { get; private set; } = "Notepad";
-        public string Text { get; private set; } = "";
-
-        public Document()
-        {
-            Status = StatusElement.New;
-        }
-
-        public void Save()
-        {
-            Status = StatusElement.Saved;
-        }
-
-        public void NotSave()
-        {
-            Status = StatusElement.NotSaved;
-        }
-
-        public void SetFilePath(string path)
-        {
-            FilePath = path;
-            FileName = System.IO.Path.GetFileName(path);
-        }
-
-        public void SetText(string text)
-        {
-            Text = text;
-        }
-    }
-
     public partial class MainWindow : Window
     {
-        Document Document;
+        ProjectManager projectManager;
 
         public MainWindow()
         {
             InitializeComponent();
-            Document = new Document();
-        }
-
-        // Функция для "сохранить" файл
-        public void SaveProjectScript()
-        {
-            if (Document.Text == FullText.Text) return;
-
-            if (Document.FilePath == "")
-            {
-                SaveAsProjectScript();
-            }
-            else
-            {
-                string text = FullText.Text;
-                File.WriteAllText(Document.FilePath, text);
-                Document.Save();
-                Title = Document.FileName;
-            }
-        }
-
-        // Функция для "сохранить как" файл
-        public void SaveAsProjectScript()
-        {
-            string text = FullText.Text;
-
-            SaveFileDialog dialog = new SaveFileDialog()
-            {
-                FileName = "Unnamed",
-                DefaultExt = ".txt",
-                Filter = "Text documents (.txt)|*.txt|HTML-document|*.html"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                File.WriteAllText(dialog.FileName, text);
-
-                Document.SetFilePath(dialog.FileName);
-                Document.Save();
-                Title = Document.FileName;
-            }
-        }
-
-        public void ZoomIn()
-        {
-            FullText.FontSize += 5;
-        }
-
-        public void ZoomOut()
-        {
-            FullText.FontSize -= 5;
-        }
-
-        public void DefaultZoom()
-        {
-            FullText.FontSize = 11;
+            projectManager = new ProjectManager();
         }
 
         private void SaveProjectClick(object sender, RoutedEventArgs e)
         {
-            SaveProjectScript();
+            projectManager.SaveProjectScript(this);
         }
 
         private void SaveAsProjectClick(object sender, RoutedEventArgs e)
         {
-            SaveAsProjectScript();
+            projectManager.SaveAsProjectScript(this);
         }
 
         private void ExitClick(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void OpenFileClick(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog dialog = new OpenFileDialog();
-            if (dialog.ShowDialog() == true)
-            {
-                if (dialog.FileName.EndsWith(".txt") || dialog.FileName.EndsWith(".html"))
-                {
-                    string text = File.ReadAllText(dialog.FileName);
-                    FullText.Text = text;
-                    Document.SetFilePath(dialog.FileName);
-                    Document.Save();
-                    Title = Document.FileName;
-                }
-                else
-                {
-                    MessageBox.Show("Формат этого файла не поддерживается", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            projectManager.OpenFileScript(this);
         }
 
         private void ZoomInClick(object sender, RoutedEventArgs e)
         {
-            ZoomIn();
+            projectManager.ZoomIn(this);
         }
 
         private void ZoomOutClick(object sender, RoutedEventArgs e)
         {
-            ZoomOut();
+            projectManager.ZoomOut(this);
         }
 
         private void DefaultZoomClick(object sender, RoutedEventArgs e)
         {
-            DefaultZoom();
+            projectManager.DefaultZoom(this);
         }
 
         private void CheckUpdateChanged(object sender, TextChangedEventArgs e)
         {
-            Document.NotSave();
-            if (Document.FileName != "Notepad")
-            {
-                Title = "*" + Document.FileName;
-            }
+            projectManager.ChangeTitle(this);
         }
 
         private void KeyScript(object sender, KeyEventArgs e)
@@ -194,14 +79,26 @@ namespace CopyNotepad
                     // При CTRL+SHIFT+S - Save As...
                     if (e.Key == Key.S)
                     {
-                        SaveAsProjectScript();
+                        projectManager.SaveAsProjectScript(this);
                         e.Handled = true;
                     }
                 }
                 // При CTRL+S - Save
                 else if (e.Key == Key.S)
                 {
-                    SaveProjectScript();
+                    projectManager.SaveProjectScript(this);
+                    e.Handled = true;
+                }
+                // При CTRL+O - Open...
+                else if (e.Key == Key.O)
+                {
+                    projectManager.OpenFileScript(this);
+                    e.Handled = true;
+                }
+                // При CTRL+Q - Exit
+                else if (e.Key == Key.Q)
+                {
+                    Close();
                     e.Handled = true;
                 }
             }
@@ -214,12 +111,12 @@ namespace CopyNotepad
                 // CTRL + ScrollUp
                 if (e.Delta > 0)
                 {
-                    ZoomIn();
+                    projectManager.ZoomIn(this);
                 }
                 // CTRL + ScrollDown
                 else
                 {
-                    ZoomOut();
+                    projectManager.ZoomOut(this);
                 }
                 e.Handled = true;
             }
@@ -227,41 +124,7 @@ namespace CopyNotepad
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            if (Document.Status == StatusElement.NotSaved)
-            {
-                e.Cancel = true;
-                MessageBoxResult result = MessageBox.Show(
-                    "Сохранить файл перед выходом?",
-                    "Сохранение",
-                    MessageBoxButton.YesNoCancel,
-                    MessageBoxImage.Question
-                );
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    if (Document.FilePath == "")
-                    {
-                        SaveAsProjectScript();
-                    }
-                    else
-                    {
-                        string text = FullText.Text;
-                        File.WriteAllText(Document.FilePath, text);
-                        Document.Save();
-                        Title = Document.FileName;
-                    }
-                    e.Cancel = false;
-                }
-                else if (result == MessageBoxResult.No)
-                {
-                    e.Cancel = false;
-                }
-                else if (result == MessageBoxResult.Cancel) { }
-            }
-            else
-            {
-                e.Cancel = false;
-            }
+            projectManager.OnCloseScript(this, e);
         }
     }
 }

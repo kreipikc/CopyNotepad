@@ -10,16 +10,16 @@
     <DockPanel LastChildFill="True">
         <Menu DockPanel.Dock="Top" Height="25">
             <MenuItem Header="File">
-                <MenuItem Header="Open..." Click="OpenFileClick"></MenuItem>
-                <MenuItem Header="Save" Click="SaveProjectClick"></MenuItem>
-                <MenuItem Header="SaveAs..." Click="SaveAsProjectClick"></MenuItem>
+                <MenuItem Header="Open..." Click="OpenFileClick" InputGestureText="CTRL+O"></MenuItem>
+                <MenuItem Header="Save" Click="SaveProjectClick" InputGestureText="CTRL+S"></MenuItem>
+                <MenuItem Header="SaveAs..." Click="SaveAsProjectClick" InputGestureText="CTRL+SHIFT+S"></MenuItem>
                 <Separator />
-                <MenuItem Header="Exit" Click="ExitClick"></MenuItem>
+                <MenuItem Header="Exit" Click="ExitClick" InputGestureText="CTRL+Q"></MenuItem>
             </MenuItem>
             <MenuItem Header="View">
                 <MenuItem Header="Scale">
-                    <MenuItem Header="Zoom in+" Click="ZoomInClick"></MenuItem>
-                    <MenuItem Header="Zoom out-" Click="ZoomOutClick"></MenuItem>
+                    <MenuItem Header="Zoom in+" Click="ZoomInClick" InputGestureText="CTRL+ScrollUp"></MenuItem>
+                    <MenuItem Header="Zoom out-" Click="ZoomOutClick" InputGestureText="CTRL+ScrollDown"></MenuItem>
                     <MenuItem Header="Default zoom" Click="DefaultZoomClick"></MenuItem>
                 </MenuItem>
             </MenuItem>
