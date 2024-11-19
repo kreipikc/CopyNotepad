@@ -121,12 +121,15 @@ namespace CopyNotepad
 
         public void ZoomIn(MainWindow mainWindow)
         {
-            mainWindow.FullText.FontSize += 5;
+            if (mainWindow.FullText.FontSize < 72)
+            {
+                mainWindow.FullText.FontSize += 5;
+            }
         }
 
         public void ZoomOut(MainWindow mainWindow)
         {
-            if (mainWindow.FullText.FontSize > 0)
+            if (mainWindow.FullText.FontSize > 6)
             {
                 mainWindow.FullText.FontSize -= 5;
             }
