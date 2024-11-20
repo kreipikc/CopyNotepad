@@ -55,6 +55,7 @@ namespace CopyNotepad
     internal class ProjectManager
     {
         Document Document;
+        List<string> BanExtensionList = new List<string>() { ".mp3", ".mp4", ".mp5" };
 
         public ProjectManager() 
         {
@@ -104,8 +105,8 @@ namespace CopyNotepad
             if (Document.Status == StatusElement.NotSaved) 
             {
                 MessageBoxResult result = MessageBox.Show(
-                    "Сохранить файл перед выходом?",
-                    "Сохранение",
+                    "Save the file before exiting?",
+                    "Save",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Question
                 );
@@ -130,11 +131,23 @@ namespace CopyNotepad
             OpenFileDialog dialog = new OpenFileDialog();
             if (dialog.ShowDialog() == true)
             {
-                string text = File.ReadAllText(dialog.FileName);
-                mainWindow.FullText.Text = text;
-                Document.SetFilePath(dialog.FileName);
-                Document.Save();
-                mainWindow.Title = Document.FileName;
+                if (!BanExtensionList.Contains(Path.GetExtension(dialog.FileName)))
+                {
+                    string text = File.ReadAllText(dialog.FileName);
+                    mainWindow.FullText.Text = text;
+                    Document.SetFilePath(dialog.FileName);
+                    Document.Save();
+                    mainWindow.Title = Document.FileName;
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "The file in this format is not supported!",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error
+                    );
+                }
             }
         }
 
@@ -174,8 +187,8 @@ namespace CopyNotepad
             {
                 e.Cancel = true;
                 MessageBoxResult result = MessageBox.Show(
-                    "Сохранить файл перед выходом?",
-                    "Сохранение",
+                    "Save the file before exiting?",
+                    "Save",
                     MessageBoxButton.YesNoCancel,
                     MessageBoxImage.Question
                 );
