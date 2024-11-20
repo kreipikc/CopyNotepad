@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:CopyNotepad"
         mc:Ignorable="d"
         Title="Notepad" Height="450" Width="800"
+        MinHeight="200" MinWidth="200"
         PreviewMouseWheel="CheckScroll">
     <DockPanel LastChildFill="True">
         <Menu DockPanel.Dock="Top" Height="25">
