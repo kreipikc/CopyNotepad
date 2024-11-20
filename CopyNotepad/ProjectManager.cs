@@ -86,7 +86,7 @@ namespace CopyNotepad
             {
                 FileName = "Unnamed",
                 DefaultExt = ".txt",
-                Filter = "Text documents (.txt)|*.txt|HTML-document|*.html"
+                Filter = "TXT-documents|*.txt|All files|*.*"
             };
 
             if (dialog.ShowDialog() == true)
@@ -101,21 +101,40 @@ namespace CopyNotepad
 
         public void OpenFileScript(MainWindow mainWindow)
         {
+            if (Document.Status == StatusElement.NotSaved) 
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    "Сохранить файл перед выходом?",
+                    "Сохранение",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question
+                );
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (Document.FilePath == "")
+                    {
+                        SaveAsProjectScript(mainWindow);
+                    }
+                    else
+                    {
+                        string text = mainWindow.FullText.Text;
+                        File.WriteAllText(Document.FilePath, text);
+                        Document.Save();
+                        mainWindow.Title = Document.FileName;
+                    }
+                }
+                else if (result == MessageBoxResult.No) { }
+            }
+
             OpenFileDialog dialog = new OpenFileDialog();
             if (dialog.ShowDialog() == true)
             {
-                if (dialog.FileName.EndsWith(".txt") || dialog.FileName.EndsWith(".html"))
-                {
-                    string text = File.ReadAllText(dialog.FileName);
-                    mainWindow.FullText.Text = text;
-                    Document.SetFilePath(dialog.FileName);
-                    Document.Save();
-                    mainWindow.Title = Document.FileName;
-                }
-                else
-                {
-                    MessageBox.Show("Формат этого файла не поддерживается", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
+                string text = File.ReadAllText(dialog.FileName);
+                mainWindow.FullText.Text = text;
+                Document.SetFilePath(dialog.FileName);
+                Document.Save();
+                mainWindow.Title = Document.FileName;
             }
         }
 
