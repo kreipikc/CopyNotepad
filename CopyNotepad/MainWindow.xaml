@@ -26,6 +26,13 @@
             </MenuItem>
         </Menu>
 
-        <TextBox AcceptsReturn="True" Name="FullText" TextChanged="CheckUpdateChanged" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" KeyDown="KeyScript"/>
+        <TextBox AcceptsReturn="True" Name="FullText"
+                 TextChanged="CheckUpdateChanged"
+                 ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                 KeyDown="KeyScript" 
+                 AllowDrop="True"
+                 PreviewDrop="FullText_Drop"
+                 PreviewDragOver="FullText_DragOver"/>
     </DockPanel>
 </Window>

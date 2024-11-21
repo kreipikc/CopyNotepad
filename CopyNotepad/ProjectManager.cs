@@ -62,6 +62,36 @@ namespace CopyNotepad
             Document = new Document();
         }
 
+        // Вопрос о сохранении перед открытием нового файла
+        void QuestionForSave(MainWindow mainWindow)
+        {
+            if (Document.Status == StatusElement.NotSaved)
+            {
+                MessageBoxResult result = MessageBox.Show(
+                    "Save the file before exiting?",
+                    "Save",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question
+                );
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    if (Document.FilePath == "")
+                    {
+                        SaveAsProjectScript(mainWindow);
+                    }
+                    else
+                    {
+                        string text = mainWindow.FullText.Text;
+                        File.WriteAllText(Document.FilePath, text);
+                        Document.Save();
+                        mainWindow.Title = Document.FileName;
+                    }
+                }
+                else if (result == MessageBoxResult.No) { }
+            }
+        }
+
         public void SaveProjectScript(MainWindow mainWindow)
         {
             if (Document.Text == mainWindow.FullText.Text) return;
@@ -104,28 +134,7 @@ namespace CopyNotepad
         {
             if (Document.Status == StatusElement.NotSaved) 
             {
-                MessageBoxResult result = MessageBox.Show(
-                    "Save the file before exiting?",
-                    "Save",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question
-                );
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    if (Document.FilePath == "")
-                    {
-                        SaveAsProjectScript(mainWindow);
-                    }
-                    else
-                    {
-                        string text = mainWindow.FullText.Text;
-                        File.WriteAllText(Document.FilePath, text);
-                        Document.Save();
-                        mainWindow.Title = Document.FileName;
-                    }
-                }
-                else if (result == MessageBoxResult.No) { }
+                QuestionForSave(mainWindow);
             }
 
             OpenFileDialog dialog = new OpenFileDialog();
@@ -179,6 +188,64 @@ namespace CopyNotepad
             {
                 mainWindow.Title = "*" + Document.FileName;
             }
+        }
+
+        public void DragOver(DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.Copy;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+            e.Handled = true;
+        }
+
+        public void Drop(MainWindow mainWindow, DragEventArgs e)
+        {
+            if (Document.Status == StatusElement.NotSaved)
+            {
+                QuestionForSave(mainWindow);
+            }
+
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                string FirstFile = files[0];
+                if (!BanExtensionList.Contains(System.IO.Path.GetExtension(FirstFile)))
+                {
+                    try
+                    {
+                        string fileContent = File.ReadAllText(FirstFile);
+                        Document.SetFilePath(FirstFile);
+                        Document.SetText(fileContent);
+                        mainWindow.FullText.Text = fileContent;
+                        mainWindow.Title = Document.FileName;
+                        Document.Save();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(
+                            $"Error reading the file {files[0]}: {ex.Message}",
+                            "Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error
+                        );
+                    }
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "The file in this format is not supported!",
+                        "Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error
+                    );
+                }
+            }
+            e.Handled = true;
         }
 
         public void OnCloseScript(MainWindow mainWindow, CancelEventArgs e)

@@ -122,6 +122,18 @@ namespace CopyNotepad
             }
         }
 
+        // При перетаскивании файла на блокнот (держать)
+        private void FullText_DragOver(object sender, DragEventArgs e)
+        {
+            projectManager.DragOver(e);
+        }
+
+        // При перетаскивании файла на блакнот (отпустить)
+        private void FullText_Drop(object sender, DragEventArgs e)
+        {
+            projectManager.Drop(this, e);
+        }
+
         protected override void OnClosing(CancelEventArgs e)
         {
             projectManager.OnCloseScript(this, e);
