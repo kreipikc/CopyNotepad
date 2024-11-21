@@ -55,7 +55,7 @@ namespace CopyNotepad
     internal class ProjectManager
     {
         Document Document;
-        List<string> BanExtensionList = new List<string>() { ".mp3", ".mp4", ".mp5" };
+        List<string> BanExtensionList = new List<string>() { ".mp3", ".mp4", ".mp5", ".wav", ".aac", ".flac", ".avi", ".mkv", ".mov" };
 
         public ProjectManager() 
         {
