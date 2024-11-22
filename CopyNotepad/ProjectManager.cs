@@ -214,6 +214,16 @@ namespace CopyNotepad
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
                 string FirstFile = files[0];
+                if (files.Length != 1)
+                {
+                    MessageBox.Show(
+                        $"Only one {System.IO.Path.GetFileName(files[0])} file will be scanned",
+                        "Message",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information
+                    );
+                }
+
                 if (!BanExtensionList.Contains(System.IO.Path.GetExtension(FirstFile)))
                 {
                     try
